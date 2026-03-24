@@ -6,315 +6,70 @@
 <title>廚房大亂鬥 🍳</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
-
   :root {
-    --bg: #1a0a2e;
-    --panel: #2d1b4e;
-    --accent: #ff6b35;
-    --accent2: #ffd166;
-    --green: #06d6a0;
-    --red: #ef476f;
-    --blue: #118ab2;
-    --p1: #ff6b9d;
-    --p2: #4ecdc4;
-    --tile: #241540;
-    --tile2: #1e1038;
-    --counter: #3d2a6b;
-    --counter-top: #4a3380;
-    --text: #f8f0ff;
+    --bg:#1a0a2e; --panel:#2d1b4e; --accent:#ff6b35; --accent2:#ffd166;
+    --green:#06d6a0; --red:#ef476f; --p1:#ff6b9d; --p2:#4ecdc4; --text:#f8f0ff;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    font-family: 'Nunito', 'Noto Sans TC', sans-serif;
-    color: var(--text);
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  /* HUD */
-  #hud {
-    width: 100%;
-    max-width: 900px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    background: rgba(255,255,255,0.04);
-    border-bottom: 2px solid rgba(255,255,255,0.08);
-  }
-  .player-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    font-size: 14px;
-  }
-  .player-icon { font-size: 28px; }
-  .player-label { font-size: 11px; opacity: 0.7; }
-  #score-box {
-    text-align: center;
-  }
-  #score {
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--accent2);
-    line-height: 1;
-    text-shadow: 0 0 20px rgba(255,209,102,0.5);
-  }
-  #timer-bar-wrap {
-    width: 180px;
-    height: 8px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 99px;
-    overflow: hidden;
-    margin-top: 4px;
-  }
-  #timer-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green), var(--accent2));
-    border-radius: 99px;
-    transition: width 0.5s linear, background 0.5s;
-  }
-  #timer-text { font-size: 11px; opacity: 0.6; margin-top: 2px; }
-  .controls-hint { font-size: 10px; opacity: 0.5; line-height: 1.8; }
-  .controls-hint span { color: var(--accent2); }
-
-  /* Game area */
-  #game-wrap {
-    flex: 1;
-    width: 100%;
-    max-width: 900px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-  }
-
-  canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-  }
-
-  /* Overlays */
-  .overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(10,0,30,0.88);
-    backdrop-filter: blur(8px);
-    z-index: 100;
-  }
-  .overlay h1 {
-    font-size: 52px;
-    font-weight: 900;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-align: center;
-    line-height: 1.1;
-    margin-bottom: 10px;
-  }
-  .overlay p { opacity: 0.7; margin-bottom: 6px; font-size: 15px; }
-  .big-btn {
-    margin-top: 24px;
-    padding: 14px 40px;
-    border: none;
-    border-radius: 50px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #1a0a2e;
-    font-family: inherit;
-    font-size: 20px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 8px 30px rgba(255,107,53,0.4);
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .big-btn:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(255,107,53,0.6); }
-  .star-row { font-size: 40px; letter-spacing: 8px; margin: 12px 0; }
-  .final-score { font-size: 48px; font-weight: 900; color: var(--accent2); }
-
-  /* Orders panel */
-  #orders-panel {
-    width: 100%;
-    max-width: 900px;
-    padding: 8px 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    background: rgba(255,255,255,0.03);
-    border-top: 1px solid rgba(255,255,255,0.06);
-    min-height: 90px;
-    overflow-x: auto;
-  }
-  .order-card {
-    background: var(--panel);
-    border: 2px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
-    padding: 8px 12px;
-    min-width: 110px;
-    flex-shrink: 0;
-    font-size: 12px;
-    position: relative;
-  }
-  .order-card .dish-icon { font-size: 26px; display: block; text-align: center; }
-  .order-card .dish-name { text-align: center; font-weight: 700; font-size: 11px; margin-top: 2px; }
-  .order-timer {
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 99px;
-    margin-top: 6px;
-    overflow: hidden;
-  }
-  .order-timer-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: var(--green);
-    transition: width 0.5s linear;
-  }
-  .order-pts { text-align: center; font-size: 10px; color: var(--accent2); font-weight: 700; }
-
-  /* Station labels */
-  .station-label {
-    position: absolute;
-    font-size: 9px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.55);
-    pointer-events: none;
-    text-align: center;
-    line-height: 1.2;
-    letter-spacing: 0.3px;
-  }
-
-  /* Recipe book button */
-  #recipe-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255,209,102,0.15);
-    border: 1.5px solid rgba(255,209,102,0.35);
-    border-radius: 10px;
-    padding: 5px 10px;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--accent2);
-    cursor: pointer;
-    z-index: 20;
-    font-family: inherit;
-    transition: background 0.15s;
-  }
-  #recipe-btn:hover { background: rgba(255,209,102,0.28); }
-
-  /* Recipe panel */
-  #recipe-panel {
-    position: absolute;
-    inset: 0;
-    background: rgba(10,0,30,0.92);
-    backdrop-filter: blur(10px);
-    z-index: 90;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  #recipe-panel h2 {
-    font-size: 26px;
-    font-weight: 900;
-    color: var(--accent2);
-    margin-bottom: 14px;
-    letter-spacing: 1px;
-  }
-  .recipe-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-    width: 100%;
-    max-width: 700px;
-  }
-  .recipe-card {
-    background: var(--panel);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    padding: 12px;
-    text-align: center;
-  }
-  .recipe-card .r-icon { font-size: 34px; }
-  .recipe-card .r-name { font-size: 14px; font-weight: 900; margin: 4px 0 2px; color: var(--accent2); }
-  .recipe-card .r-pts { font-size: 11px; color: var(--green); font-weight: 700; margin-bottom: 8px; }
-  .recipe-card .r-steps { font-size: 11px; opacity: 0.75; line-height: 1.9; text-align: left; }
-  .recipe-card .r-steps .step { display: flex; align-items: center; gap: 5px; }
-  .recipe-card .r-steps .step-num {
-    background: rgba(255,255,255,0.1); border-radius: 50%;
-    width: 16px; height: 16px; font-size: 9px; font-weight: 900;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-
-  /* Station legend */
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
-    margin-top: 16px; max-width: 700px;
-  }
-  .legend-item {
-    background: rgba(255,255,255,0.06);
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 12px;
-    display: flex; align-items: center; gap: 5px;
-  }
-
-  .close-btn {
-    margin-top: 18px;
-    padding: 10px 30px;
-    border: none;
-    border-radius: 50px;
-    background: var(--accent);
-    color: #fff;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 900;
-    cursor: pointer;
-  }
-
-  /* Score popup */
-  .score-popup {
-    position: absolute;
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--accent2);
-    pointer-events: none;
-    z-index: 50;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-    animation: popUp 1.2s forwards;
-  }
-  @keyframes popUp {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'Nunito','Noto Sans TC',sans-serif;color:var(--text);overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;}
+  #hud{width:100%;max-width:900px;display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:rgba(255,255,255,0.04);border-bottom:2px solid rgba(255,255,255,0.08);flex-shrink:0;}
+  .player-info{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;}
+  .player-icon{font-size:26px;}
+  .player-label{font-size:10px;opacity:0.7;}
+  #score-box{text-align:center;}
+  #score{font-size:30px;font-weight:900;color:var(--accent2);line-height:1;text-shadow:0 0 20px rgba(255,209,102,0.5);}
+  #timer-bar-wrap{width:160px;height:7px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;margin-top:3px;}
+  #timer-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--accent2));border-radius:99px;transition:width 0.5s linear,background 0.5s;}
+  #timer-text{font-size:10px;opacity:0.6;margin-top:2px;}
+  #game-wrap{flex:1;width:100%;max-width:900px;overflow:hidden;position:relative;min-height:0;}
+  canvas{display:block;width:100%;height:100%;}
+  .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,0,30,0.9);backdrop-filter:blur(8px);z-index:100;padding:20px;}
+  .overlay h1{font-size:44px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px;}
+  .overlay p{opacity:0.75;margin-bottom:4px;font-size:13px;text-align:center;}
+  .big-btn{margin-top:18px;padding:12px 36px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a0a2e;font-family:inherit;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 8px 30px rgba(255,107,53,0.4);transition:transform 0.15s;}
+  .big-btn:hover{transform:scale(1.05);}
+  .ghost-btn{margin-top:10px;padding:8px 26px;border:2px solid rgba(255,255,255,0.2);border-radius:50px;background:transparent;color:var(--text);font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;}
+  .star-row{font-size:36px;letter-spacing:8px;margin:8px 0;}
+  .final-score{font-size:44px;font-weight:900;color:var(--accent2);}
+  #orders-panel{width:100%;max-width:900px;padding:6px 14px;display:flex;gap:8px;align-items:flex-start;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);min-height:82px;overflow-x:auto;flex-shrink:0;}
+  .order-card{background:var(--panel);border:2px solid rgba(255,255,255,0.12);border-radius:11px;padding:6px 10px;min-width:105px;flex-shrink:0;font-size:11px;}
+  .order-card .dish-icon{font-size:22px;display:block;text-align:center;}
+  .order-card .dish-name{text-align:center;font-weight:700;font-size:10px;margin-top:1px;}
+  .order-timer{height:3px;background:rgba(255,255,255,0.1);border-radius:99px;margin-top:5px;overflow:hidden;}
+  .order-timer-fill{height:100%;border-radius:99px;}
+  .order-pts{text-align:center;font-size:9px;color:var(--accent2);font-weight:700;}
+  #recipe-btn{position:absolute;top:7px;right:7px;background:rgba(255,209,102,0.15);border:1.5px solid rgba(255,209,102,0.35);border-radius:9px;padding:4px 9px;font-size:12px;font-weight:800;color:var(--accent2);cursor:pointer;z-index:20;font-family:inherit;}
+  #recipe-panel{position:absolute;inset:0;background:rgba(10,0,30,0.95);backdrop-filter:blur(10px);z-index:90;display:none;flex-direction:column;align-items:center;padding:18px;overflow-y:auto;}
+  #recipe-panel h2{font-size:22px;font-weight:900;color:var(--accent2);margin-bottom:12px;}
+  .recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;width:100%;max-width:680px;}
+  .recipe-card{background:var(--panel);border:1.5px solid rgba(255,255,255,0.1);border-radius:13px;padding:11px;text-align:center;}
+  .recipe-card .r-icon{font-size:30px;}
+  .recipe-card .r-name{font-size:13px;font-weight:900;color:var(--accent2);margin:3px 0 2px;}
+  .recipe-card .r-pts{font-size:10px;color:var(--green);font-weight:700;margin-bottom:7px;}
+  .recipe-card .r-steps{font-size:10px;opacity:0.8;line-height:1.9;text-align:left;}
+  .recipe-card .r-steps .step{display:flex;align-items:center;gap:4px;}
+  .recipe-card .r-steps .step-num{background:rgba(255,255,255,0.1);border-radius:50%;width:14px;height:14px;font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .legend{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:12px;max-width:680px;}
+  .legend-item{background:rgba(255,255,255,0.06);border-radius:7px;padding:4px 9px;font-size:11px;}
+  .close-btn{margin-top:14px;padding:8px 26px;border:none;border-radius:50px;background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer;}
+  .score-popup{position:absolute;font-size:19px;font-weight:900;color:var(--accent2);pointer-events:none;z-index:50;text-shadow:0 2px 8px rgba(0,0,0,0.8);animation:popUp 1.2s forwards;}
+  @keyframes popUp{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-55px) scale(1.4);}}
 </style>
 </head>
 <body>
 
-<!-- HUD -->
 <div id="hud">
   <div class="player-info">
     <div class="player-icon">🧑‍🍳</div>
     <div>
       <div class="player-label">玩家一</div>
-      <div style="color:var(--p1)">WASD + F</div>
+      <div style="color:var(--p1);font-size:12px">WASD + F</div>
     </div>
   </div>
   <div id="score-box">
+    <div id="level-badge" style="font-size:10px;color:var(--accent2);opacity:0.8;font-weight:800;">第 1 關</div>
     <div id="score">0</div>
+    <div id="goal-display" style="font-size:10px;color:var(--green);font-weight:800;margin-bottom:2px;">🎯 目標 500 分</div>
     <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
     <div id="timer-text">⏱ 3:00</div>
   </div>
@@ -322,899 +77,717 @@
     <div class="player-icon">👩‍🍳</div>
     <div style="text-align:right">
       <div class="player-label">玩家二</div>
-      <div style="color:var(--p2)">↑↓←→ + 0</div>
+      <div style="color:var(--p2);font-size:12px">↑↓←→ + Num0</div>
     </div>
   </div>
 </div>
 
-<!-- Game Canvas -->
 <div id="game-wrap">
   <canvas id="canvas"></canvas>
-  <div id="labels-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5"></div>
 
-  <!-- Start Overlay -->
   <div class="overlay" id="startOverlay">
     <h1>廚房大亂鬥</h1>
-    <div style="font-size:48px;margin:8px 0">🍳🔪🥘</div>
-    <p>雙人合作，完成訂單，爭取高分！</p>
-    <p style="font-size:12px">玩家一: WASD移動，F拿取/放下/互動</p>
-    <p style="font-size:12px">玩家二: 方向鍵移動，Numpad0拿取/放下/互動</p>
-    <button class="big-btn" onclick="startGame()">開始遊戲！</button>
+    <div style="font-size:42px;margin:6px 0">🍅🔪🍽️</div>
+    <p id="start-level-title" style="font-size:16px;font-weight:900;color:var(--accent2);opacity:1">第一關：新手廚房</p>
+    <p id="start-level-desc">切好番茄，放上盤子，送到出餐口！</p>
+    <p id="start-level-hint" style="color:var(--green);font-size:11px;font-weight:800;"></p>
+    <p id="start-level-goal" style="color:var(--accent2);font-size:12px;font-weight:800;opacity:1;">🎯 目標：3分鐘內達到 500 分</p>
+    <div style="margin:8px 0;height:1px;width:240px;background:rgba(255,255,255,0.1)"></div>
+    <p style="font-size:11px;">玩家一: WASD移動 · F互動</p>
+    <p style="font-size:11px;">玩家二: 方向鍵移動 · Numpad0互動</p>
+    <p style="font-size:11px;color:var(--accent2);margin-top:4px;">面向站台旁邊再按互動鍵</p>
+    <button class="big-btn" id="start-btn">開始遊戲！</button>
   </div>
 
-  <!-- Recipe Book Button -->
   <button id="recipe-btn" onclick="toggleRecipe()">📖 食譜</button>
-
-  <!-- Recipe Panel -->
   <div id="recipe-panel">
     <h2>📖 食譜書</h2>
     <div class="recipe-grid" id="recipe-grid"></div>
-    <div style="margin-top:18px;max-width:700px;width:100%">
-      <div style="font-size:13px;font-weight:800;color:var(--accent2);margin-bottom:8px">🏗️ 站台說明</div>
+    <div style="margin-top:14px;max-width:680px;width:100%;">
+      <div style="font-size:12px;font-weight:800;color:var(--accent2);margin-bottom:7px;">🏗️ 站台說明</div>
       <div class="legend">
-        <div class="legend-item">🧅 洋蔥台</div>
-        <div class="legend-item">🍄 蘑菇台</div>
-        <div class="legend-item">🍅 番茄台</div>
-        <div class="legend-item">🍞 麵包台</div>
-        <div class="legend-item">🔪 砧板 — 切食材</div>
-        <div class="legend-item">🔥 爐灶 — 烹煮食材</div>
-        <div class="legend-item">🍽️ 盤子 — 擺盤</div>
-        <div class="legend-item">📦 出餐口 — 送餐</div>
-        <div class="legend-item">🗑️ 垃圾桶 — 丟棄</div>
+        <div class="legend-item">🧅 洋蔥台</div><div class="legend-item">🍄 蘑菇台</div>
+        <div class="legend-item">🍅 番茄台</div><div class="legend-item">🍞 麵包台</div>
+        <div class="legend-item">🔪 砧板—切菜</div><div class="legend-item">🔥 爐灶—烹煮</div>
+        <div class="legend-item">🍽️ 盤子—擺盤</div><div class="legend-item">📦 出餐口—送餐</div>
+        <div class="legend-item">🗑️ 垃圾桶—丟棄</div>
       </div>
     </div>
     <button class="close-btn" onclick="toggleRecipe()">關閉</button>
   </div>
 
-  <!-- End Overlay -->
   <div class="overlay" id="endOverlay" style="display:none">
     <h1>時間到！</h1>
-    <div class="star-row" id="starRow">⭐⭐⭐</div>
+    <div class="star-row" id="starRow">⭐</div>
     <div class="final-score" id="finalScore">0 分</div>
-    <p id="endMsg" style="margin-top:8px">太棒了！</p>
-    <button class="big-btn" onclick="startGame()">再來一局！</button>
+    <p id="endMsg" style="margin-top:6px;opacity:1;font-size:14px;"></p>
+    <button class="big-btn" id="retry-btn">再試一次！</button>
+  </div>
+
+  <div class="overlay" id="levelClearOverlay" style="display:none">
+    <div style="font-size:54px;margin-bottom:4px">🎉</div>
+    <h1 id="lc-title">第一關通關！</h1>
+    <div class="final-score" id="lc-score" style="margin:8px 0">0 分</div>
+    <div id="lc-next-preview" style="font-size:12px;color:var(--accent2);font-weight:800;margin-bottom:5px;opacity:0.9;"></div>
+    <button class="big-btn" id="lc-next-btn" style="background:linear-gradient(135deg,var(--green),var(--accent2))">下一關 →</button>
+    <button class="ghost-btn" id="lc-retry-btn">重玩本關</button>
   </div>
 </div>
 
-<!-- Orders -->
-<div id="orders-panel" id="orders"></div>
+<div id="orders-panel"></div>
 
 <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const TILE = 60;
+// ═══════════════════════════════════════════════════════
+// CORE CONSTANTS
+// ═══════════════════════════════════════════════════════
+const TILE = 60; // logical tile size — world coords use this
 
-// ── MAP LAYOUT ──────────────────────────────────────────────────────────────
-// W=wall, .=floor, C=chopping, P=plate, S=stove, T=trash, D=delivery
-// Raw ingredient stations: o=onion, m=mushroom, t=tomato, b=bun
-const MAP = [
+// ─── MAPS ───────────────────────────────────────────────
+// 15 cols × 8 rows，每行精確 15 字元
+// 半開放式：中間站台為島嶼，玩家可繞行整張地圖自由通行
+// 出餐口 DD 固定在 row3 col12-13，面右互動
+const MAP_SIMPLE = [
+  'WWWWWWWWWWWWWWW',  // row 0
+  'WWWWtWWWWPWTWWW',  // row 1: 番茄t=4, 盤P=9, 垃圾T=11
+  'W.............W',  // row 2
+  'W.....WW....DDW',  // row 3: 島嶼頂, D=12-13
+  'W.....CW......W',  // row 4: 砧板C=6
+  'W.....WW......W',  // row 5: 島嶼底
+  'W.............W',  // row 6
+  'WWWWWWWWWWWWWWW',  // row 7
+];
+const MAP_BURGER = [
   'WWWWWWWWWWWWWWW',
-  'WoWmWtWbWPWTWDW',
+  'WWtWbWWWWPWTWWW',  // 番茄t=2, 麵包b=4
   'W.............W',
-  'W.............W',
-  'WC.W..SS..W.CW',
-  'W.............W',
+  'W.....WW....DDW',
+  'W.....CW......W',
+  'W.....WW......W',
   'W.............W',
   'WWWWWWWWWWWWWWW',
 ];
-const COLS = MAP[0].length;
-const ROWS = MAP.length;
-
-// ── RECIPES ─────────────────────────────────────────────────────────────────
-const RECIPES = [
-  { name:'炒蘑菇', icon:'🍄', ingredients:['mushroom'], needsChop:['mushroom'], needsCook:true, pts:80, time:30 },
-  { name:'番茄湯', icon:'🍅', ingredients:['tomato'], needsChop:['tomato'], needsCook:true, pts:90, time:30 },
-  { name:'洋蔥堡', icon:'🍔', ingredients:['onion','bun'], needsChop:['onion'], needsCook:false, pts:100, time:30 },
-  { name:'雜菌湯', icon:'🥘', ingredients:['mushroom','onion'], needsChop:['mushroom','onion'], needsCook:true, pts:150, time:30 },
-  { name:'番茄堡', icon:'🌮', ingredients:['tomato','bun'], needsChop:['tomato'], needsCook:false, pts:120, time:30 },
+const MAP_SOUP = [
+  'WWWWWWWWWWWWWWW',
+  'WWWWtWWWWPWTWWW',
+  'W.............W',
+  'W.....WW....DDW',
+  'W.....CS......W',  // 砧板C=6, 爐灶S=7
+  'W.....WW......W',
+  'W.............W',
+  'WWWWWWWWWWWWWWW',
+];
+const MAP_MIXED = [
+  'WWWWWWWWWWWWWWW',
+  'WoWmWtWbWPWTWWW',  // o=1,m=3,t=5,b=7
+  'W.............W',
+  'W.....WW....DDW',
+  'W.....CS.C....W',  // C=6,S=7,C=9
+  'W.....WW......W',
+  'W.............W',
+  'WWWWWWWWWWWWWWW',
+];
+const MAP_FULL = [
+  'WWWWWWWWWWWWWWW',
+  'WoWmWtWbWPWTWWW',
+  'W.............W',
+  'W.....WW....DDW',
+  'W.....CSSC....W',  // C=6,S=7,S=8,C=9
+  'W.....WW......W',
+  'W.............W',
+  'WWWWWWWWWWWWWWW',
 ];
 
-// ── INGREDIENT INFO ──────────────────────────────────────────────────────────
+// ─── RECIPES ────────────────────────────────────────────
+const R_TOMATO_SLICE  = { name:'番茄片', icon:'🍅', ingredients:['tomato'], needsChop:['tomato'], needsCook:false, pts:80,  time:30 };
+const R_TOMATO_BURGER = { name:'番茄堡', icon:'🌮', ingredients:['tomato','bun'], needsChop:['tomato'], needsCook:false, pts:120, time:30 };
+const R_TOMATO_SOUP   = { name:'番茄湯', icon:'🍲', ingredients:['tomato'], needsChop:['tomato'], needsCook:true,  pts:90,  time:30 };
+const R_MUSHROOM_SOUP = { name:'雜菌湯', icon:'🥘', ingredients:['mushroom','onion'], needsChop:['mushroom','onion'], needsCook:true, pts:150, time:30 };
+const R_ONION_BURGER  = { name:'洋蔥堡', icon:'🍔', ingredients:['onion','bun'], needsChop:['onion'], needsCook:false, pts:100, time:30 };
+
+const LEVELS = [
+  { num:1,  title:'第一關：新手廚房',       desc:'切好番茄，放上盤子，送到出餐口！',           hint:'🍅切→🍽️盤→📦送出',           goalScore:500,      timeLimit:180, map:MAP_SIMPLE, recipes:[R_TOMATO_SLICE],   spawnRate:0.5,  maxOrders:3 },
+  { num:2,  title:'第二關：番茄堡',         desc:'切番茄 + 拿麵包，放到盤子送出！',           hint:'🍅切+🍞→🍽️盤→📦送出',         goalScore:600,      timeLimit:180, map:MAP_BURGER, recipes:[R_TOMATO_BURGER],  spawnRate:0.5,  maxOrders:3 },
+  { num:3,  title:'第三關：番茄湯',         desc:'切番茄後還要用爐灶烹煮！',                  hint:'🍅切→🔥煮→🍽️盤→📦送出',       goalScore:600,      timeLimit:180, map:MAP_SOUP,   recipes:[R_TOMATO_SOUP],    spawnRate:0.5,  maxOrders:3 },
+  { num:4,  title:'第四關：雜菌湯',         desc:'蘑菇＋洋蔥都要切，一起下鍋！',              hint:'🍄切+🧅切→🔥煮→🍽️盤→📦送出', goalScore:700,      timeLimit:180, map:MAP_MIXED,  recipes:[R_MUSHROOM_SOUP],  spawnRate:0.5,  maxOrders:3 },
+  { num:5,  title:'第五關：洋蔥堡',         desc:'切洋蔥配麵包，速度要快！',                  hint:'🧅切+🍞→🍽️盤→📦送出',         goalScore:600,      timeLimit:180, map:MAP_MIXED,  recipes:[R_ONION_BURGER],   spawnRate:0.5,  maxOrders:3 },
+  { num:6,  title:'第六關：番茄堡＋番茄湯', desc:'兩種番茄料理！注意訂單細節！',              hint:'堡不用煮，湯要下鍋！',           goalScore:900,      timeLimit:180, map:MAP_MIXED,  recipes:[R_TOMATO_BURGER, R_TOMATO_SOUP],  spawnRate:0.45, maxOrders:4 },
+  { num:7,  title:'第七關：雜菌湯＋洋蔥堡', desc:'複雜流程同時進行，分工合作！',              hint:'一人備料，一人掌鍋！',           goalScore:1000,     timeLimit:180, map:MAP_FULL,   recipes:[R_MUSHROOM_SOUP, R_ONION_BURGER], spawnRate:0.45, maxOrders:4 },
+  { num:8,  title:'第八關：三菜聯合',        desc:'番茄堡、番茄湯、雜菌湯三種同時！',         hint:'爐灶資源有限，搶先排隊！',       goalScore:1200,     timeLimit:180, map:MAP_FULL,   recipes:[R_TOMATO_BURGER, R_TOMATO_SOUP, R_MUSHROOM_SOUP],  spawnRate:0.45, maxOrders:4 },
+  { num:9,  title:'第九關：四菜全開',        desc:'四種菜色全部登場，高速運轉！',              hint:'一人爐灶，一人出餐！',           goalScore:1500,     timeLimit:180, map:MAP_FULL,   recipes:[R_TOMATO_BURGER, R_TOMATO_SOUP, R_MUSHROOM_SOUP, R_ONION_BURGER], spawnRate:0.42, maxOrders:5 },
+  { num:10, title:'第十關：終極挑戰 🏆',     desc:'5分鐘無限挑戰，看看你們能得幾分！',        hint:'沒有目標，只有最高紀錄！',       goalScore:Infinity, timeLimit:300, map:MAP_FULL,   recipes:[R_TOMATO_BURGER, R_TOMATO_SOUP, R_MUSHROOM_SOUP, R_ONION_BURGER], spawnRate:0.4,  maxOrders:5 },
+];
+
 const ING = {
-  onion:    { icon:'🧅', label:'洋蔥', raw:'🧅', chopped:'🟡' },
-  mushroom: { icon:'🍄', label:'蘑菇', raw:'🍄', chopped:'🔶' },
-  tomato:   { icon:'🍅', label:'番茄', raw:'🍅', chopped:'🔴' },
-  bun:      { icon:'🍞', label:'麵包', raw:'🍞', chopped:'🍞' },
+  onion:   { raw:'🧅', chopped:'🟡', label:'洋蔥' },
+  mushroom:{ raw:'🍄', chopped:'🔶', label:'蘑菇' },
+  tomato:  { raw:'🍅', chopped:'🔴', label:'番茄' },
+  bun:     { raw:'🍞', chopped:'🍞', label:'麵包' },
 };
+const ING_NAMES = { onion:'洋蔥', mushroom:'蘑菇', tomato:'番茄', bun:'麵包' };
 
-// ── GAME STATE ──────────────────────────────────────────────────────────────
-let score = 0, timeLeft = 180, gameRunning = false, gameLoop = null, tickInterval = null;
-let orders = [];
-let particles = [];
+const TILE_COLORS   = { W:'#3d2a6b', '.':'#241540', C:'#5a3f1a', P:'#2d4a6b', S:'#6b1a1a', T:'#2a2a2a', D:'#1a4a1a', o:'#4a3518', m:'#4a3518', t:'#4a3518', b:'#4a3518' };
+const TILE_ICONS    = { C:'🔪', P:'🍽️', S:'🔥', T:'🗑️', D:'📦', o:'🧅', m:'🍄', t:'🍅', b:'🍞' };
+const STATION_NAMES = { C:'砧板', P:'盤子', S:'爐灶', T:'垃圾桶', D:'出餐口', o:'洋蔥', m:'蘑菇', t:'番茄', b:'麵包' };
 
-const stovePots = {}; // key: "row,col" -> {items, progress, cooking}
+// ═══════════════════════════════════════════════════════
+// RUNTIME STATE
+// ═══════════════════════════════════════════════════════
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
 
-// ── PLAYERS ─────────────────────────────────────────────────────────────────
-function makePlayer(x, y, color, keys) {
-  return { x, y, vx:0, vy:0, color, keys, held:null, facing:{x:0,y:1}, moving:false, animFrame:0, animTick:0 };
-}
+let currentLevelIdx = 0;
+let currentLevel    = LEVELS[0];
+let MAP     = currentLevel.map;
+let RECIPES = currentLevel.recipes;
+let COLS = 15, ROWS = 8;
 
-let players = [];
+// Scale factor: pixels per logical tile unit
+// Recalculated on resize so world coords (multiples of TILE) map correctly to screen
+let scaleX = 1, scaleY = 1;
 
-// ── INIT ────────────────────────────────────────────────────────────────────
 function resize() {
   const wrap = document.getElementById('game-wrap');
-  canvas.width = wrap.clientWidth;
+  canvas.width  = wrap.clientWidth;
   canvas.height = wrap.clientHeight;
+  scaleX = canvas.width  / (COLS * TILE);
+  scaleY = canvas.height / (ROWS * TILE);
 }
 window.addEventListener('resize', resize);
 resize();
 
-// ── INPUT ────────────────────────────────────────────────────────────────────
-const keys = {};
-window.addEventListener('keydown', e => {
-  keys[e.code] = true;
-  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
-  // Interact
-  if (e.code === 'KeyF' && gameRunning) interact(players[0]);
-  if ((e.code === 'Numpad0' || e.code === 'Insert') && gameRunning) interact(players[1]);
-});
-window.addEventListener('keyup', e => { keys[e.code] = false; });
+let score = 0, timeLeft = 180, gameRunning = false, tickInterval = null;
+let orders  = [];
+let players = [];
 
-// ── TILE HELPERS ─────────────────────────────────────────────────────────────
+const stovePots    = {};
+const counterItems = {};
+const chopProgress = {};
+const plateItems   = {};
+
+// ═══════════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════════
+const keysDown = {};
+window.addEventListener('keydown', e => {
+  keysDown[e.code] = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if (e.code === 'KeyF'   && gameRunning && players[0]) interact(players[0]);
+  if ((e.code === 'Numpad0' || e.code === 'Insert') && gameRunning && players[1]) interact(players[1]);
+});
+window.addEventListener('keyup', e => { keysDown[e.code] = false; });
+
+// ═══════════════════════════════════════════════════════
+// COORDINATE HELPERS
+// World coords: player x/y in units of pixels (TILE=60 per cell)
+// tileAt() / isWalkable() work in tile indices
+// ═══════════════════════════════════════════════════════
 function tileAt(col, row) {
   if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return 'W';
   return MAP[row][col];
 }
-function isWalkable(col, row) {
-  const t = tileAt(col, row);
-  return t === '.' || t === 'W' ? t === '.' : false;
-}
+function isWalkable(col, row) { return tileAt(col, row) === '.'; }
 function worldToTile(wx, wy) {
   return { col: Math.floor(wx / TILE), row: Math.floor(wy / TILE) };
 }
+function ck(col, row) { return row + ',' + col; }
 
-// ── COUNTERS / STATIONS ───────────────────────────────────────────────────────
-// Items on counters: key "row,col" -> item object
-const counterItems = {};
-const chopProgress = {}; // key -> {progress, item}
-// plate items: key -> [items]
-const plateItems = {};
+// ═══════════════════════════════════════════════════════
+// PLAYER
+// ═══════════════════════════════════════════════════════
+function makePlayer(wx, wy, color) {
+  return { x:wx, y:wy, color, held:null, facing:{x:1, y:0}, moving:false, animFrame:0, animTick:0 };
+}
 
-function counterKey(col, row) { return `${row},${col}`; }
-
-// ── PLAYER MOVEMENT ──────────────────────────────────────────────────────────
 const SPEED = 2.5;
 function movePlayer(p, dx, dy) {
   if (!dx && !dy) { p.moving = false; return; }
   p.moving = true;
-  if (dx) p.facing.x = Math.sign(dx);
-  if (dy) p.facing.y = Math.sign(dy);
+  // Pure single-axis facing: last non-zero axis wins
+  if      (dx !== 0 && dy === 0) { p.facing.x = Math.sign(dx); p.facing.y = 0; }
+  else if (dy !== 0 && dx === 0) { p.facing.y = Math.sign(dy); p.facing.x = 0; }
+  // diagonal: keep previous facing (don't update)
   if (dx && dy) { dx *= 0.707; dy *= 0.707; }
-
+  const r = 17;
   const nx = p.x + dx * SPEED;
   const ny = p.y + dy * SPEED;
-  const r = 20; // collision radius
-
-  // X
-  const tx = worldToTile(nx + (dx > 0 ? r : -r), p.y);
+  const tx = worldToTile(nx + (dx>0?r:-r), p.y);
   if (isWalkable(tx.col, tx.row)) p.x = nx;
-
-  // Y
-  const ty = worldToTile(p.x, ny + (dy > 0 ? r : -r));
+  const ty = worldToTile(p.x, ny + (dy>0?r:-r));
   if (isWalkable(ty.col, ty.row)) p.y = ny;
-
-  // anim
   p.animTick++;
-  if (p.animTick > 6) { p.animTick = 0; p.animFrame = (p.animFrame + 1) % 4; }
+  if (p.animTick > 6) { p.animTick = 0; p.animFrame = (p.animFrame+1) % 4; }
 }
 
-// ── INTERACT ─────────────────────────────────────────────────────────────────
 function getFacingTile(p) {
-  const px = p.x + p.facing.x * (TILE * 0.6);
-  const py = p.y + p.facing.y * (TILE * 0.6);
-  return worldToTile(px, py);
+  // Step exactly 1 tile in the facing direction from center
+  const wx = p.x + p.facing.x * TILE;
+  const wy = p.y + p.facing.y * TILE;
+  return worldToTile(wx, wy);
 }
 
+// ═══════════════════════════════════════════════════════
+// INTERACT
+// ═══════════════════════════════════════════════════════
 function interact(p) {
-  const { col, row } = getFacingTile(p);
+  const {col, row} = getFacingTile(p);
   const tile = tileAt(col, row);
-  const ck = counterKey(col, row);
+  const key  = ck(col, row);
 
-  // INGREDIENT SOURCES
   if ('omtb'.includes(tile)) {
-    const ingMap = { o:'onion', m:'mushroom', t:'tomato', b:'bun' };
-    const type = ingMap[tile];
-    if (!p.held) {
-      p.held = { type, state:'raw' };
-    }
+    if (!p.held) p.held = { type:{o:'onion',m:'mushroom',t:'tomato',b:'bun'}[tile], state:'raw' };
     return;
   }
-
-  // CHOPPING BOARD
   if (tile === 'C') {
     if (p.held && p.held.state === 'raw' && p.held.type !== 'bun') {
-      // place on board
-      if (!chopProgress[ck]) {
-        chopProgress[ck] = { item: p.held, progress: 0 };
-        p.held = null;
-      }
-    } else if (!p.held && chopProgress[ck] && chopProgress[ck].progress >= 100) {
-      // pick up chopped
-      const chop = chopProgress[ck];
-      p.held = { type: chop.item.type, state:'chopped' };
-      delete chopProgress[ck];
-    } else if (!p.held && chopProgress[ck] && chopProgress[ck].progress < 100) {
-      // chop it
-      chopProgress[ck].progress = Math.min(100, chopProgress[ck].progress + 25);
-      spawnParticle(col * TILE + TILE/2, row * TILE + TILE/2, '✂️');
+      if (!chopProgress[key]) { chopProgress[key] = { item:p.held, progress:0 }; p.held = null; }
+    } else if (!p.held && chopProgress[key] && chopProgress[key].progress >= 100) {
+      p.held = { type:chopProgress[key].item.type, state:'chopped' }; delete chopProgress[key];
+    } else if (!p.held && chopProgress[key]) {
+      chopProgress[key].progress = Math.min(100, chopProgress[key].progress + 25);
+      spawnParticle(col, row, '✂️');
     }
     return;
   }
-
-  // STOVE
   if (tile === 'S') {
-    if (p.held && !stovePots[ck]) {
-      stovePots[ck] = { items: [p.held], progress: 0, cooking: true };
-      p.held = null;
-    } else if (!p.held && stovePots[ck] && stovePots[ck].progress >= 100) {
-      p.held = { type:'cooked', state:'cooked', items: stovePots[ck].items };
-      delete stovePots[ck];
-    } else if (p.held && stovePots[ck] && stovePots[ck].progress < 100) {
-      stovePots[ck].items.push(p.held);
-      p.held = null;
-    }
+    if (p.held && !stovePots[key]) { stovePots[key] = { items:[p.held], progress:0 }; p.held = null; }
+    else if (!p.held && stovePots[key] && stovePots[key].progress >= 100) { p.held = { type:'cooked', state:'cooked', items:stovePots[key].items }; delete stovePots[key]; }
+    else if (p.held && stovePots[key] && stovePots[key].progress < 100) { stovePots[key].items.push(p.held); p.held = null; }
     return;
   }
-
-  // PLATE
   if (tile === 'P') {
-    if (p.held) {
-      if (!plateItems[ck]) plateItems[ck] = [];
-      plateItems[ck].push(p.held);
-      p.held = null;
-    } else if (!p.held && plateItems[ck] && plateItems[ck].length > 0) {
-      // pick up plate
-      p.held = { type:'plate', items: [...plateItems[ck]] };
-      delete plateItems[ck];
-    }
+    if (p.held) { if (!plateItems[key]) plateItems[key]=[]; plateItems[key].push(p.held); p.held=null; }
+    else if (plateItems[key] && plateItems[key].length) { p.held={type:'plate',items:[...plateItems[key]]}; delete plateItems[key]; }
     return;
   }
-
-  // DELIVERY
   if (tile === 'D') {
-    if (p.held && p.held.type === 'plate') {
-      tryDeliver(p.held.items, col, row);
-      p.held = null;
-    }
+    if (p.held && p.held.type === 'plate') { tryDeliver(p.held.items, col, row); p.held=null; }
     return;
   }
-
-  // TRASH
-  if (tile === 'T') {
-    p.held = null;
-    spawnParticle(col * TILE + TILE/2, row * TILE + TILE/2, '🗑️');
-    return;
-  }
-
-  // COUNTER (empty tile with wall) - store/retrieve items
+  if (tile === 'T') { p.held=null; spawnParticle(col, row,'🗑️'); return; }
   if (tile === 'W') {
-    // try as shelf
-    if (p.held) {
-      if (!counterItems[ck]) { counterItems[ck] = p.held; p.held = null; }
-    } else if (counterItems[ck]) {
-      p.held = counterItems[ck];
-      delete counterItems[ck];
-    }
+    if (p.held && !counterItems[key]) { counterItems[key]=p.held; p.held=null; }
+    else if (!p.held && counterItems[key]) { p.held=counterItems[key]; delete counterItems[key]; }
   }
 }
 
-// ── DELIVERY ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// DELIVERY
+// ═══════════════════════════════════════════════════════
 function tryDeliver(items, col, row) {
-  // Flatten items: a 'cooked' wrapper expands to its inner items with state='cooked'
   const flat = [];
   items.forEach(i => {
-    if (i.type === 'cooked' && i.items) {
-      i.items.forEach(inner => flat.push({ type: inner.type, state: 'cooked' }));
-    } else {
-      flat.push(i);
-    }
+    if (i.type === 'cooked' && i.items) i.items.forEach(x => flat.push({type:x.type, state:'cooked'}));
+    else flat.push(i);
   });
-
-  const sig = flat.map(i => i.type + (i.state || '')).sort().join(',');
-
-  for (let i = 0; i < orders.length; i++) {
-    const o = orders[i];
-    const rec = RECIPES.find(r => r.name === o.name);
+  const sig = flat.map(i => i.type+(i.state||'')).sort().join(',');
+  for (let i=0; i<orders.length; i++) {
+    const rec = RECIPES.find(r => r.name === orders[i].name);
     if (!rec) continue;
-
-    const needed = buildIngredientSig(rec);
+    const needed = rec.ingredients.map(ing => ing+(rec.needsCook?'cooked':(rec.needsChop&&rec.needsChop.includes(ing)?'chopped':'raw'))).sort().join(',');
     if (sig === needed) {
-      const bonus = Math.floor(o.timeLeft / o.totalTime * 30);
-      const pts = o.pts + bonus;
+      const pts = orders[i].pts + Math.floor(orders[i].timeLeft/orders[i].totalTime*30);
       score += pts;
       document.getElementById('score').textContent = score;
-      spawnParticle(col * TILE + TILE / 2, row * TILE + TILE / 2, `+${pts}✨`);
-      orders.splice(i, 1);
-      spawnOrder();
-      return;
+      if (currentLevel.goalScore !== Infinity && score/currentLevel.goalScore >= 0.8)
+        document.getElementById('score').style.color = 'var(--green)';
+      spawnParticle(col, row, '+'+pts+'✨');
+      orders.splice(i,1); spawnOrder(); return;
     }
   }
-  // wrong dish — show what we got vs what was needed for debug feel
-  spawnParticle(col * TILE + TILE / 2, row * TILE + TILE / 2, '❌');
+  spawnParticle(col, row, '❌');
 }
 
-function buildIngredientSig(rec) {
-  return rec.ingredients.map(ing => {
-    if (rec.needsCook) return ing + 'cooked';
-    const isChopped = rec.needsChop && rec.needsChop.includes(ing);
-    return ing + (isChopped ? 'chopped' : 'raw');
-  }).sort().join(',');
-}
-
-// ── ORDERS ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════════════
 function spawnOrder() {
-  if (orders.length >= 4) return;
-  const rec = RECIPES[Math.floor(Math.random() * RECIPES.length)];
-  orders.push({ ...rec, timeLeft: rec.time, totalTime: rec.time });
+  if (orders.length >= currentLevel.maxOrders) return;
+  const rec = RECIPES[Math.floor(Math.random()*RECIPES.length)];
+  orders.push({...rec, timeLeft:rec.time, totalTime:rec.time});
   renderOrders();
 }
 
 function renderOrders() {
   const panel = document.getElementById('orders-panel');
-  panel.innerHTML = '<div style="font-size:11px;opacity:0.5;writing-mode:vertical-lr;padding:4px 0;flex-shrink:0">訂單</div>';
-  orders.forEach((o, i) => {
-    const pct = (o.timeLeft / o.totalTime) * 100;
-    const col = pct > 50 ? 'var(--green)' : pct > 25 ? 'var(--accent2)' : 'var(--red)';
+  panel.innerHTML = '<div style="font-size:10px;opacity:0.5;writing-mode:vertical-lr;padding:3px 0;flex-shrink:0">訂單</div>';
+  orders.forEach((o,i) => {
+    const pct = o.timeLeft/o.totalTime*100;
+    const col = pct>50?'var(--green)':pct>25?'var(--accent2)':'var(--red)';
+    const ingIcons = o.ingredients.map(ing=>{
+      let s = ING[ing].raw;
+      if(o.needsChop&&o.needsChop.includes(ing)) s+='<span style="font-size:7px">✂️</span>';
+      if(o.needsCook) s+='<span style="font-size:7px">🔥</span>';
+      return '<span style="font-size:12px">'+s+'</span>';
+    }).join('<span style="font-size:7px;opacity:0.4">+</span>');
     const card = document.createElement('div');
     card.className = 'order-card';
-    // Build ingredient mini icons
-    const ingIcons = o.ingredients.map(ing => {
-      const base = ING[ing] ? ING[ing].raw : '❓';
-      const needsChop = o.needsChop && o.needsChop.includes(ing);
-      const needsCook = o.needsCook;
-      let s = base;
-      if (needsChop) s += '<span style="font-size:9px;opacity:0.7">✂️</span>';
-      if (needsCook) s += '<span style="font-size:9px;opacity:0.7">🔥</span>';
-      return `<span style="font-size:13px">${s}</span>`;
-    }).join('<span style="font-size:9px;opacity:0.4;margin:0 1px">+</span>');
     card.innerHTML = `
       <span class="dish-icon">${o.icon}</span>
       <div class="dish-name">${o.name}</div>
-      <div style="text-align:center;margin:3px 0;line-height:1.5">${ingIcons}</div>
+      <div style="text-align:center;margin:2px 0;line-height:1.5">${ingIcons}</div>
+      <div style="text-align:center;font-size:8px;opacity:0.5;line-height:1.5">⬇️🍽️盤子⬇️📦出餐</div>
       <div class="order-pts">+${o.pts}pt</div>
-      <div class="order-timer"><div class="order-timer-fill" id="otf${i}" style="width:${pct}%;background:${col}"></div></div>
+      <div class="order-timer"><div class="order-timer-fill" style="width:${pct}%;background:${col};transition:width 0.5s linear"></div></div>
     `;
     panel.appendChild(card);
   });
 }
 
-// ── PARTICLES ─────────────────────────────────────────────────────────────────
-function spawnParticle(x, y, text) {
+// ═══════════════════════════════════════════════════════
+// PARTICLES — position in tile coords, converted to screen %
+// ═══════════════════════════════════════════════════════
+function spawnParticle(tileCol, tileRow, text) {
   const wrap = document.getElementById('game-wrap');
   const el = document.createElement('div');
   el.className = 'score-popup';
   el.textContent = text;
-  el.style.left = (x / canvas.width * 100) + '%';
-  el.style.top = (y / canvas.height * 100) + '%';
+  // Convert tile centre to % of canvas
+  el.style.left = ((tileCol + 0.5) * TILE * scaleX / canvas.width  * 100) + '%';
+  el.style.top  = ((tileRow + 0.5) * TILE * scaleY / canvas.height * 100) + '%';
   wrap.appendChild(el);
   setTimeout(() => el.remove(), 1200);
 }
 
-// ── DRAW ──────────────────────────────────────────────────────────────────────
-const TILE_COLORS = {
-  W: '#3d2a6b', '.': '#241540',
-  C: '#5a3f1a', P: '#2d4a6b', S: '#6b1a1a', T: '#2a2a2a', D: '#1a4a1a',
-  o: '#5a3f1a', m: '#5a3f1a', t: '#5a3f1a', b: '#5a3f1a',
-};
-const TILE_ICONS = {
-  C: '🔪', P: '🍽️', S: '🔥', T: '🗑️', D: '📦',
-  o: '🧅', m: '🍄', t: '🍅', b: '🍞',
-};
+// ═══════════════════════════════════════════════════════
+// DRAW — all rendering in logical tile units, then scaled
+// ═══════════════════════════════════════════════════════
+function getItemIcon(item) {
+  if (!item) return '';
+  if (item.type === 'plate') return '🍽️';
+  if (item.type === 'cooked') return '🍲';
+  const ing = ING[item.type]; if (!ing) return '❓';
+  return item.state==='chopped' ? ing.chopped : ing.raw;
+}
 
 function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const sx = (canvas.width - COLS * TILE) / 2;
-  const sy = (canvas.height - ROWS * TILE) / 2;
-
   ctx.save();
-  ctx.translate(sx, sy);
+  // Scale so 1 logical TILE unit = scaleX/scaleY pixels
+  ctx.scale(scaleX, scaleY);
 
-  // Draw tiles
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const t = MAP[r][c];
+  for (let r=0; r<ROWS; r++) {
+    for (let c=0; c<COLS; c++) {
+      const t   = MAP[r][c];
+      const key = ck(c, r);
+      const x   = c * TILE, y = r * TILE;
+
+      // Tile background
       ctx.fillStyle = TILE_COLORS[t] || '#1a0a2e';
-      ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
+      ctx.fillRect(x, y, TILE, TILE);
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(x, y, TILE, TILE);
 
-      // grid lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-      ctx.strokeRect(c * TILE, r * TILE, TILE, TILE);
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
 
-      // Icon
+      // Station icon (top half)
       if (TILE_ICONS[t]) {
-        ctx.font = '22px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(TILE_ICONS[t], c * TILE + TILE / 2, r * TILE + TILE / 2);
+        ctx.font = '24px serif';
+        ctx.fillText(TILE_ICONS[t], x+TILE/2, y+TILE*0.38);
       }
 
-      // Counter items
-      const ck = counterKey(c, r);
-      if (counterItems[ck]) {
-        const it = counterItems[ck];
-        ctx.font = '18px serif';
-        ctx.fillText(getItemIcon(it), c * TILE + TILE / 2, r * TILE + TILE / 2 + 8);
+      // Station name label (bottom of tile)
+      if (STATION_NAMES[t]) {
+        ctx.font = 'bold 9px Nunito, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.fillText(STATION_NAMES[t], x+TILE/2, y+TILE*0.82);
       }
 
-      // Chop progress
-      if (chopProgress[ck]) {
-        const cp = chopProgress[ck];
-        ctx.font = '18px serif';
-        ctx.fillText(getItemIcon(cp.item), c * TILE + TILE / 2, r * TILE + TILE / 2);
-        // progress bar
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(c * TILE + 5, r * TILE + TILE - 10, TILE - 10, 6);
-        ctx.fillStyle = cp.progress >= 100 ? '#06d6a0' : '#ffd166';
-        ctx.fillRect(c * TILE + 5, r * TILE + TILE - 10, (TILE - 10) * cp.progress / 100, 6);
+      // Items on counter
+      if (counterItems[key]) {
+        ctx.font='18px serif';
+        ctx.fillText(getItemIcon(counterItems[key]), x+TILE/2, y+TILE/2+6);
       }
 
-      // Plate items
-      if (plateItems[ck] && plateItems[ck].length > 0) {
-        ctx.font = '14px serif';
-        plateItems[ck].forEach((it, idx) => {
-          ctx.fillText(getItemIcon(it), c * TILE + TILE / 2 + (idx - 0.5) * 14, r * TILE + TILE / 2 + 8);
-        });
+      // Chop board
+      if (chopProgress[key]) {
+        const cp = chopProgress[key];
+        ctx.font='18px serif';
+        ctx.fillText(getItemIcon(cp.item), x+TILE/2, y+TILE*0.38);
+        ctx.font='bold 9px Nunito,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
+        ctx.fillText('砧板', x+TILE/2, y+TILE*0.82);
+        ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(x+5, y+TILE-10, TILE-10, 5);
+        ctx.fillStyle=cp.progress>=100?'#06d6a0':'#ffd166';
+        ctx.fillRect(x+5, y+TILE-10, (TILE-10)*cp.progress/100, 5);
       }
 
-      // Stove pot
-      if (stovePots[ck]) {
-        const pot = stovePots[ck];
-        ctx.font = '20px serif';
-        ctx.fillText('🍲', c * TILE + TILE / 2, r * TILE + TILE / 2);
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(c * TILE + 5, r * TILE + TILE - 10, TILE - 10, 6);
-        ctx.fillStyle = pot.progress >= 100 ? '#06d6a0' : '#ff6b35';
-        ctx.fillRect(c * TILE + 5, r * TILE + TILE - 10, (TILE - 10) * pot.progress / 100, 6);
-        // steam
-        if (pot.cooking && Math.random() < 0.1) {
-          ctx.font = '10px serif';
-          ctx.fillText('💨', c * TILE + TILE / 2 + Math.random() * 10 - 5, r * TILE + 4);
-        }
+      // Plate station
+      if (plateItems[key] && plateItems[key].length) {
+        ctx.font='14px serif';
+        plateItems[key].forEach((it,idx)=>
+          ctx.fillText(getItemIcon(it), x+TILE/2+(idx-0.5)*14, y+TILE/2+6));
+      }
+
+      // Stove
+      if (stovePots[key]) {
+        const pot=stovePots[key];
+        ctx.font='22px serif'; ctx.fillText('🍲', x+TILE/2, y+TILE*0.38);
+        ctx.font='bold 9px Nunito,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
+        ctx.fillText('爐灶', x+TILE/2, y+TILE*0.82);
+        ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(x+5, y+TILE-10, TILE-10, 5);
+        ctx.fillStyle=pot.progress>=100?'#06d6a0':'#ff6b35';
+        ctx.fillRect(x+5, y+TILE-10, (TILE-10)*pot.progress/100, 5);
+        if(Math.random()<0.06){ctx.font='10px serif';ctx.fillText('💨',x+TILE/2+Math.random()*8-4,y+5);}
       }
     }
   }
 
-  // Draw players
   players.forEach(p => drawPlayer(p));
-
   ctx.restore();
-}
-
-function getItemIcon(item) {
-  if (!item) return '';
-  if (item.type === 'plate') {
-    return '🍽️' + (item.items ? item.items.map(i => getItemIcon(i)).join('') : '');
-  }
-  if (item.type === 'cooked') return '🍲';
-  const ing = ING[item.type];
-  if (!ing) return '❓';
-  return item.state === 'chopped' ? ing.chopped : ing.raw;
 }
 
 function drawPlayer(p) {
-  const sx = (canvas.width - COLS * TILE) / 2;
-  const sy = (canvas.height - ROWS * TILE) / 2;
-  const px = p.x - sx;
-  const py = p.y - sy;
-
-  // Body bob when moving
-  const bob = p.moving ? Math.sin(p.animFrame * Math.PI / 2) * 3 : 0;
-  // Arm swing when moving
-  const armSwing = p.moving ? Math.sin(p.animFrame * Math.PI / 2) * 18 : 0;
+  // p.x, p.y are in the same world coord (TILE units * pixels)
+  const px = p.x, py = p.y;
+  const bob   = p.moving ? Math.sin(p.animFrame*Math.PI/2)*3 : 0;
+  const swing = p.moving ? Math.sin(p.animFrame*Math.PI/2)*15 : 0;
+  const fx = p.facing.x, fy = p.facing.y;
 
   // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.beginPath();
-  ctx.ellipse(px, py + 18, 16, 5, 0, 0, Math.PI * 2);
+  ctx.fillStyle='rgba(0,0,0,0.22)';
+  ctx.beginPath(); ctx.ellipse(px, py+17, 14, 5, 0, 0, Math.PI*2); ctx.fill();
+
+  // Legs
+  const ls = p.moving ? Math.sin(p.animFrame*Math.PI/2)*4 : 0;
+  ctx.fillStyle=p.color;
+  ctx.beginPath(); ctx.roundRect(px-10, py+9+bob, 8, 13+ls, 3); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(px+2,  py+9+bob, 8, 13-ls, 3); ctx.fill();
+
+  // Arms
+  let lax,lay,lbx,lby,rax,ray,rbx,rby;
+  if      (fx===1)  { lax=px-5;lay=py-3+bob; lbx=px+9+swing; lby=py-1+bob; rax=px-5;ray=py+2+bob; rbx=px+11+swing;rby=py+3+bob; }
+  else if (fx===-1) { lax=px+5;lay=py-3+bob; lbx=px-9-swing; lby=py-1+bob; rax=px+5;ray=py+2+bob; rbx=px-11-swing;rby=py+3+bob; }
+  else if (fy===-1) { lax=px-10;lay=py-2+bob; lbx=px-11+swing;lby=py-16+bob; rax=px+10;ray=py-2+bob; rbx=px+11-swing;rby=py-16+bob; }
+  else              { lax=px-10;lay=py+2+bob; lbx=px-11+swing;lby=py+12+bob; rax=px+10;ray=py+2+bob; rbx=px+11-swing;rby=py+12+bob; }
+
+  const drawArms = () => {
+    ctx.strokeStyle=p.color; ctx.lineWidth=7; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(lax,lay); ctx.lineTo(lbx,lby); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rax,ray); ctx.lineTo(rbx,rby); ctx.stroke();
+    ctx.fillStyle='#FFD4A3';
+    ctx.beginPath(); ctx.arc(lbx,lby,4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(rbx,rby,4,0,Math.PI*2); ctx.fill();
+  };
+  if (fy>=0) drawArms();
+
+  // Body
+  ctx.fillStyle=p.color; ctx.beginPath(); ctx.roundRect(px-13,py-16+bob,26,28,7); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.17)'; ctx.beginPath(); ctx.roundRect(px-7,py-6+bob,14,18,4); ctx.fill();
+
+  // Hat
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.roundRect(px-9,py-31+bob,18,17,[5,5,0,0]); ctx.fill();
+  ctx.fillStyle='#eee'; ctx.beginPath(); ctx.roundRect(px-13,py-18+bob,26,6,3); ctx.fill();
+
+  // Face
+  ctx.fillStyle='#FFD4A3'; ctx.beginPath(); ctx.arc(px,py-8+bob,10,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#222'; ctx.beginPath();
+  ctx.arc(px-3.5+fx*1.5, py-9+fy+bob, 1.8, 0, Math.PI*2);
+  ctx.arc(px+3.5+fx*1.5, py-9+fy+bob, 1.8, 0, Math.PI*2);
   ctx.fill();
-
-  // ── LEGS ──
-  const legSpread = p.moving ? Math.sin(p.animFrame * Math.PI / 2) * 5 : 0;
-  ctx.fillStyle = p.color;
-  // left leg
-  ctx.beginPath();
-  ctx.roundRect(px - 10, py + 10 + bob, 8, 14 + legSpread, 4);
-  ctx.fill();
-  // right leg
-  ctx.beginPath();
-  ctx.roundRect(px + 2, py + 10 + bob, 8, 14 - legSpread, 4);
-  ctx.fill();
-
-  // ── ARMS ──
-  // Determine arm direction based on facing
-  const fx = p.facing.x;
-  const fy = p.facing.y;
-
-  // Arm base color (slightly darker than body)
-  ctx.strokeStyle = p.color;
-  ctx.lineWidth = 7;
-  ctx.lineCap = 'round';
-
-  // When facing up/down/left/right, the arms point toward that direction
-  // Left arm
-  let lax, lay, lbx, lby;
-  // Right arm
-  let rax, ray, rbx, rby;
-
-  const armLen = 14;
-
-  if (fx === 1 && fy === 0) {
-    // facing right — both arms reach right
-    lax = px - 6; lay = py - 4 + bob;
-    lbx = px + 10 + armSwing; lby = py - 2 + bob;
-    rax = px - 6; ray = py + 2 + bob;
-    rbx = px + 12 + armSwing; rby = py + 4 + bob;
-  } else if (fx === -1 && fy === 0) {
-    // facing left — arms reach left
-    lax = px + 6; lay = py - 4 + bob;
-    lbx = px - 10 - armSwing; lby = py - 2 + bob;
-    rax = px + 6; ray = py + 2 + bob;
-    rbx = px - 12 - armSwing; rby = py + 4 + bob;
-  } else if (fy === -1) {
-    // facing up — arms reach upward
-    lax = px - 10; lay = py - 2 + bob;
-    lbx = px - 12 + armSwing; lby = py - 18 + bob;
-    rax = px + 10; ray = py - 2 + bob;
-    rbx = px + 12 - armSwing; rby = py - 18 + bob;
-  } else {
-    // facing down (default) — arms reach downward/forward
-    lax = px - 10; lay = py + 2 + bob;
-    lbx = px - 12 + armSwing; lby = py + 14 + bob;
-    rax = px + 10; ray = py + 2 + bob;
-    rbx = px + 12 - armSwing; rby = py + 14 + bob;
-  }
-
-  // Draw arms behind body when facing down/sides
-  if (fy >= 0) {
-    ctx.beginPath(); ctx.moveTo(lax, lay); ctx.lineTo(lbx, lby); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(rax, ray); ctx.lineTo(rbx, rby); ctx.stroke();
-    // Hands
-    ctx.fillStyle = '#FFD4A3';
-    ctx.beginPath(); ctx.arc(lbx, lby, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(rbx, rby, 4, 0, Math.PI * 2); ctx.fill();
-  }
-
-  // ── BODY ──
-  ctx.fillStyle = p.color;
-  ctx.beginPath();
-  ctx.roundRect(px - 13, py - 16 + bob, 26, 28, 7);
-  ctx.fill();
-
-  // Apron
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  ctx.beginPath();
-  ctx.roundRect(px - 7, py - 6 + bob, 14, 18, 4);
-  ctx.fill();
-
-  // ── CHEF HAT ──
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.roundRect(px - 9, py - 32 + bob, 18, 18, [6,6,0,0]);
-  ctx.fill();
-  // Hat brim
-  ctx.fillStyle = '#eee';
-  ctx.beginPath();
-  ctx.roundRect(px - 13, py - 18 + bob, 26, 6, 3);
-  ctx.fill();
-  // Hat crease lines
-  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(px - 3, py - 30 + bob); ctx.lineTo(px - 3, py - 18 + bob);
-  ctx.moveTo(px + 3, py - 30 + bob); ctx.lineTo(px + 3, py - 18 + bob);
+  ctx.strokeStyle='#a0622a'; ctx.lineWidth=1.2; ctx.beginPath();
+  if (p.held) { ctx.moveTo(px-3+fx, py-4+bob); ctx.lineTo(px+3+fx, py-4+bob); }
+  else ctx.arc(px+fx*0.4, py-5+bob, 3.5, 0.2, Math.PI-0.2);
   ctx.stroke();
 
-  // ── FACE ──
-  ctx.fillStyle = '#FFD4A3';
-  ctx.beginPath();
-  ctx.arc(px, py - 8 + bob, 10, 0, Math.PI * 2);
-  ctx.fill();
+  if (fy<0) drawArms();
 
-  // Eyes — shift based on facing direction
-  const eyeShiftX = fx * 1.5;
-  const eyeShiftY = fy * 1;
-  ctx.fillStyle = '#222';
-  ctx.beginPath();
-  ctx.arc(px - 3.5 + eyeShiftX, py - 9 + eyeShiftY + bob, 1.8, 0, Math.PI * 2);
-  ctx.arc(px + 3.5 + eyeShiftX, py - 9 + eyeShiftY + bob, 1.8, 0, Math.PI * 2);
-  ctx.fill();
+  // Facing indicator arrow
+  const ax = px + fx*22, ay = py + fy*22 + bob;
+  ctx.save(); ctx.translate(ax,ay); ctx.rotate(Math.atan2(fy,fx));
+  ctx.globalAlpha=0.5; ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(-5,-4); ctx.lineTo(-2,0); ctx.lineTo(-5,4); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha=1; ctx.restore();
 
-  // Smile or focus expression
-  ctx.strokeStyle = '#a0622a';
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  if (p.held) {
-    // focused mouth
-    ctx.moveTo(px - 3 + eyeShiftX, py - 4 + bob);
-    ctx.lineTo(px + 3 + eyeShiftX, py - 4 + bob);
-  } else {
-    // smile
-    ctx.arc(px + eyeShiftX * 0.5, py - 5 + bob, 4, 0.2, Math.PI - 0.2);
-  }
-  ctx.stroke();
-
-  // Arms in FRONT of body when facing up
-  if (fy < 0) {
-    ctx.strokeStyle = p.color;
-    ctx.lineWidth = 7;
-    ctx.beginPath(); ctx.moveTo(lax, lay); ctx.lineTo(lbx, lby); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(rax, ray); ctx.lineTo(rbx, rby); ctx.stroke();
-    ctx.fillStyle = '#FFD4A3';
-    ctx.beginPath(); ctx.arc(lbx, lby, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(rbx, rby, 4, 0, Math.PI * 2); ctx.fill();
-  }
-
-  // ── FACING ARROW ──
-  // Draw a small directional arrow above/around the player showing facing direction
-  const arrowDist = 22;
-  const arrowX = px + fx * arrowDist;
-  const arrowY = py + fy * arrowDist + bob;
-  const angle = Math.atan2(fy, fx);
-
-  ctx.save();
-  ctx.translate(arrowX, arrowY);
-  ctx.rotate(angle);
-  ctx.globalAlpha = 0.55;
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.moveTo(8, 0);
-  ctx.lineTo(-5, -5);
-  ctx.lineTo(-2, 0);
-  ctx.lineTo(-5, 5);
-  ctx.closePath();
-  ctx.fill();
-  ctx.globalAlpha = 1;
-  ctx.restore();
-
-  // ── ACTION BUBBLE ──
-  // Show what action is available at the facing tile
-  const { col: fc, row: fr } = getFacingTile(p);
-  const ft = tileAt(fc, fr);
-  const ck = counterKey(fc, fr);
+  // Action bubble
+  const ft = getFacingTile(p);
+  const ftile = tileAt(ft.col, ft.row);
+  const fkey  = ck(ft.col, ft.row);
   let actionIcon = null;
-
-  if ('omtb'.includes(ft) && !p.held) actionIcon = '🖐️';
-  else if (ft === 'C') {
-    if (p.held && p.held.state === 'raw' && p.held.type !== 'bun') actionIcon = '⬇️';
-    else if (!p.held && chopProgress[ck] && chopProgress[ck].progress >= 100) actionIcon = '🖐️';
-    else if (!p.held && chopProgress[ck]) actionIcon = '✂️';
+  if ('omtb'.includes(ftile) && !p.held) actionIcon='🖐️';
+  else if (ftile==='C') {
+    if (p.held&&p.held.state==='raw'&&p.held.type!=='bun') actionIcon='⬇️';
+    else if (!p.held&&chopProgress[fkey]&&chopProgress[fkey].progress>=100) actionIcon='🖐️';
+    else if (!p.held&&chopProgress[fkey]) actionIcon='✂️';
   }
-  else if (ft === 'S') {
-    if (p.held && !stovePots[ck]) actionIcon = '⬇️';
-    else if (!p.held && stovePots[ck] && stovePots[ck].progress >= 100) actionIcon = '🖐️';
-    else if (stovePots[ck] && stovePots[ck].progress < 100) actionIcon = '🔥';
+  else if (ftile==='S') {
+    if (p.held&&!stovePots[fkey]) actionIcon='⬇️';
+    else if (!p.held&&stovePots[fkey]&&stovePots[fkey].progress>=100) actionIcon='🖐️';
+    else if (stovePots[fkey]) actionIcon='🔥';
   }
-  else if (ft === 'P') {
-    actionIcon = p.held ? '⬇️' : (plateItems[ck] && plateItems[ck].length > 0 ? '🖐️' : null);
-  }
-  else if (ft === 'D' && p.held && p.held.type === 'plate') actionIcon = '📦';
-  else if (ft === 'T' && p.held) actionIcon = '🗑️';
-  else if (ft === 'W') {
-    if (p.held && !counterItems[ck]) actionIcon = '⬇️';
-    else if (!p.held && counterItems[ck]) actionIcon = '🖐️';
-  }
+  else if (ftile==='P') actionIcon=p.held?'⬇️':(plateItems[fkey]&&plateItems[fkey].length?'🖐️':null);
+  else if (ftile==='D'&&p.held&&p.held.type==='plate') actionIcon='📦';
+  else if (ftile==='T'&&p.held) actionIcon='🗑️';
+  else if (ftile==='W') { if(p.held&&!counterItems[fkey]) actionIcon='⬇️'; else if(!p.held&&counterItems[fkey]) actionIcon='🖐️'; }
 
   if (actionIcon) {
-    const bx = px + fx * 30;
-    const by = py + fy * 30 + bob - 18;
-    // Bubble background
-    ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.beginPath();
-    ctx.roundRect(bx - 13, by - 13, 26, 26, 6);
-    ctx.fill();
-    // Pulse ring
-    ctx.strokeStyle = p.color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    // Icon
-    ctx.font = '14px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(actionIcon, bx, by);
+    const bx=px+fx*30, by=py+fy*30+bob-18;
+    ctx.fillStyle='rgba(255,255,255,0.92)'; ctx.beginPath(); ctx.roundRect(bx-13,by-13,26,26,6); ctx.fill();
+    ctx.strokeStyle=p.color; ctx.lineWidth=2; ctx.stroke();
+    ctx.font='14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(actionIcon,bx,by);
   }
 
-  // ── HELD ITEM ──
+  // Held item
   if (p.held) {
-    // Show item at the end of the arm pointing toward facing direction
-    const heldX = px + fx * 22 + (fy !== 0 ? (p.color === '#ff6b9d' ? -18 : 18) : 0);
-    const heldY = py + fy * 18 + bob - 10;
-    ctx.font = '18px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const icon = p.held.type === 'plate' ? '🍽️' : getItemIcon(p.held);
-    ctx.fillText(icon, heldX, heldY);
+    const hx=px+fx*22+(fy!==0?(p.color==='#ff6b9d'?-17:17):0);
+    const hy=py+fy*16+bob-12;
+    ctx.font='17px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(p.held.type==='plate'?'🍽️':getItemIcon(p.held), hx, hy);
   }
 }
 
-// ── GAME LOOP ─────────────────────────────────────────────────────────────────
-function update() {
-  if (!gameRunning) return;
-
-  // Player 1: WASD
-  const p1dx = (keys['KeyD'] ? 1 : 0) - (keys['KeyA'] ? 1 : 0);
-  const p1dy = (keys['KeyS'] ? 1 : 0) - (keys['KeyW'] ? 1 : 0);
-  movePlayer(players[0], p1dx, p1dy);
-
-  // Player 2: Arrow keys
-  const p2dx = (keys['ArrowRight'] ? 1 : 0) - (keys['ArrowLeft'] ? 1 : 0);
-  const p2dy = (keys['ArrowDown'] ? 1 : 0) - (keys['ArrowUp'] ? 1 : 0);
-  movePlayer(players[1], p2dx, p2dy);
-
-  // Stove cooking
-  Object.keys(stovePots).forEach(k => {
-    if (stovePots[k].cooking && stovePots[k].progress < 100) {
-      stovePots[k].progress += 0.3;
-    }
-  });
-
-  drawGame();
-  requestAnimationFrame(update);
-}
-
-// ── TICK (1s) ─────────────────────────────────────────────────────────────────
-function tick() {
-  if (!gameRunning) return;
-  timeLeft--;
-  const mins = Math.floor(timeLeft / 60);
-  const secs = String(timeLeft % 60).padStart(2, '0');
-  document.getElementById('timer-text').textContent = `⏱ ${mins}:${secs}`;
-  document.getElementById('timer-bar').style.width = (timeLeft / 180 * 100) + '%';
-  if (timeLeft <= 30) document.getElementById('timer-bar').style.background = 'var(--red)';
-  else if (timeLeft <= 60) document.getElementById('timer-bar').style.background = 'var(--accent2)';
-
-  // Order countdown
-  for (let i = orders.length - 1; i >= 0; i--) {
-    orders[i].timeLeft--;
-    if (orders[i].timeLeft <= 0) {
-      score = Math.max(0, score - 30);
-      document.getElementById('score').textContent = score;
-      orders.splice(i, 1);
-    }
-  }
-  renderOrders();
-
-  // Spawn orders
-  if (orders.length < 3 && Math.random() < 0.4) spawnOrder();
-
-  if (timeLeft <= 0) endGame();
-}
-
-// ── START / END ───────────────────────────────────────────────────────────────
-function startGame() {
-  document.getElementById('startOverlay').style.display = 'none';
-  document.getElementById('endOverlay').style.display = 'none';
-
-  score = 0; timeLeft = 180; orders = [];
-  Object.keys(counterItems).forEach(k => delete counterItems[k]);
-  Object.keys(chopProgress).forEach(k => delete chopProgress[k]);
-  Object.keys(plateItems).forEach(k => delete plateItems[k]);
-  Object.keys(stovePots).forEach(k => delete stovePots[k]);
-
-  document.getElementById('score').textContent = '0';
-  document.getElementById('timer-bar').style.width = '100%';
-  document.getElementById('timer-bar').style.background = 'linear-gradient(90deg, var(--green), var(--accent2))';
-  document.getElementById('timer-text').textContent = '⏱ 3:00';
-
-  // Players start in walkable area
-  players = [
-    makePlayer(TILE * 3 + TILE/2, TILE * 3 + TILE/2, '#ff6b9d', {}),
-    makePlayer(TILE * 7 + TILE/2, TILE * 5 + TILE/2, '#4ecdc4', {}),
-  ];
-
-  spawnOrder();
-  spawnOrder();
-
-  gameRunning = true;
-  if (tickInterval) clearInterval(tickInterval);
-  tickInterval = setInterval(tick, 1000);
-  requestAnimationFrame(update);
-}
-
-function endGame() {
-  gameRunning = false;
-  clearInterval(tickInterval);
-  const stars = score >= 1500 ? '⭐⭐⭐' : score >= 750 ? '⭐⭐' : '⭐';
-  const msgs = ['繼續努力！', '不錯！再試一次吧！', '超讚！雙廚王！'];
-  const msgIdx = score >= 1500 ? 2 : score >= 750 ? 1 : 0;
-  document.getElementById('starRow').textContent = stars;
-  document.getElementById('finalScore').textContent = score + ' 分';
-  document.getElementById('endMsg').textContent = msgs[msgIdx];
-  document.getElementById('endOverlay').style.display = 'flex';
-}
-
-// Initial render
-drawGame();
-buildRecipePanel();
-drawStationLabels();
-window.addEventListener('resize', () => { resize(); drawStationLabels(); });
-
-// ── RECIPE PANEL ──────────────────────────────────────────────────────────────
-const STEP_ICONS = { raw:'🥬', chop:'🔪', cook:'🔥', plate:'🍽️', deliver:'📦' };
-const ING_NAMES = { onion:'洋蔥', mushroom:'蘑菇', tomato:'番茄', bun:'麵包' };
-
+// ═══════════════════════════════════════════════════════
+// RECIPE PANEL
+// ═══════════════════════════════════════════════════════
 function buildRecipePanel() {
   const grid = document.getElementById('recipe-grid');
   grid.innerHTML = '';
   RECIPES.forEach(rec => {
-    const steps = buildSteps(rec);
+    const steps = [];
+    rec.ingredients.forEach(ing => {
+      steps.push('🥬 取 '+(ING_NAMES[ing]||ing));
+      if (rec.needsChop&&rec.needsChop.includes(ing)) steps.push('🔪 切 '+(ING_NAMES[ing]||ing));
+    });
+    if (rec.needsCook) steps.push('🔥 放入爐灶烹煮');
+    steps.push('🍽️ 放上盤子');
+    steps.push('📦 送到出餐口');
     const card = document.createElement('div');
-    card.className = 'recipe-card';
-    card.innerHTML = `
-      <div class="r-icon">${rec.icon}</div>
-      <div class="r-name">${rec.name}</div>
-      <div class="r-pts">+${rec.pts} 分 · ${rec.time}秒限時</div>
-      <div class="r-steps">${steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div>${s}</div>`).join('')}</div>
-    `;
+    card.className='recipe-card';
+    card.innerHTML=`<div class="r-icon">${rec.icon}</div><div class="r-name">${rec.name}</div><div class="r-pts">+${rec.pts} 分 · ${rec.time}秒</div><div class="r-steps">${steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div>${s}</div>`).join('')}</div>`;
     grid.appendChild(card);
   });
 }
-
-function buildSteps(rec) {
-  const steps = [];
-  rec.ingredients.forEach(ing => {
-    steps.push(`🥬 取 ${ING_NAMES[ing] || ing}`);
-    if (rec.needsChop && rec.needsChop.includes(ing)) {
-      steps.push(`🔪 切 ${ING_NAMES[ing] || ing}`);
-    }
-  });
-  if (rec.needsCook) steps.push('🔥 放入爐灶烹煮');
-  steps.push('🍽️ 放上盤子');
-  steps.push('📦 送到出餐口');
-  return steps;
-}
-
 function toggleRecipe() {
-  const panel = document.getElementById('recipe-panel');
-  panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+  const p=document.getElementById('recipe-panel');
+  p.style.display=p.style.display==='flex'?'none':'flex';
 }
 
-// ── STATION LABELS ─────────────────────────────────────────────────────────────
-const STATION_LABELS = {
-  C: '砧板\n🔪切菜',
-  P: '盤子\n🍽️擺盤',
-  S: '爐灶\n🔥烹煮',
-  T: '垃圾桶\n🗑️丟棄',
-  D: '出餐口\n📦送餐',
-  o: '洋蔥\n🧅取材',
-  m: '蘑菇\n🍄取材',
-  t: '番茄\n🍅取材',
-  b: '麵包\n🍞取材',
-};
+// ═══════════════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════════════
+function update() {
+  if (!gameRunning) return;
+  movePlayer(players[0], (keysDown['KeyD']?1:0)-(keysDown['KeyA']?1:0), (keysDown['KeyS']?1:0)-(keysDown['KeyW']?1:0));
+  movePlayer(players[1], (keysDown['ArrowRight']?1:0)-(keysDown['ArrowLeft']?1:0), (keysDown['ArrowDown']?1:0)-(keysDown['ArrowUp']?1:0));
+  Object.values(stovePots).forEach(pot => { if(pot.progress<100) pot.progress+=0.3; });
+  drawGame();
+  requestAnimationFrame(update);
+}
 
-function drawStationLabels() {
-  const overlay = document.getElementById('labels-overlay');
-  overlay.innerHTML = '';
-  const wrap = document.getElementById('game-wrap');
-  const cw = wrap.clientWidth;
-  const ch = wrap.clientHeight;
-  const tileW = cw / COLS;  // visual tile size
-  const tileH = ch / ROWS;
-  const sx = (cw - COLS * Math.min(tileW, tileH)) / 2;
+function tick() {
+  if (!gameRunning) return;
+  timeLeft--;
+  const m=Math.floor(timeLeft/60), s=String(timeLeft%60).padStart(2,'0');
+  document.getElementById('timer-text').textContent='⏱ '+m+':'+s;
+  document.getElementById('timer-bar').style.width=(timeLeft/currentLevel.timeLimit*100)+'%';
+  if (timeLeft<=30) document.getElementById('timer-bar').style.background='var(--red)';
+  else if (timeLeft<=60) document.getElementById('timer-bar').style.background='var(--accent2)';
 
-  // Use canvas actual size ratio
-  const scaleX = cw / (COLS * TILE);
-  const scaleY = ch / (ROWS * TILE);
+  if (currentLevel.goalScore!==Infinity && score>=currentLevel.goalScore) { showLevelClear(); return; }
 
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const t = MAP[r][c];
-      if (!STATION_LABELS[t]) continue;
-      const lx = (c * TILE + TILE / 2) * scaleX;
-      const ly = (r * TILE + TILE - 2) * scaleY;
-      const el = document.createElement('div');
-      el.className = 'station-label';
-      el.style.left = lx + 'px';
-      el.style.top = ly + 'px';
-      el.style.transform = 'translate(-50%, -100%)';
-      el.style.fontSize = Math.max(7, Math.min(10, TILE * scaleX * 0.16)) + 'px';
-      el.textContent = STATION_LABELS[t];
-      overlay.appendChild(el);
-    }
+  for (let i=orders.length-1;i>=0;i--) {
+    orders[i].timeLeft--;
+    if (orders[i].timeLeft<=0) { score=Math.max(0,score-30); document.getElementById('score').textContent=score; orders.splice(i,1); }
   }
+  renderOrders();
+  if (orders.length<currentLevel.maxOrders && Math.random()<currentLevel.spawnRate) spawnOrder();
+  if (timeLeft<=0) endGame();
 }
 
+// ═══════════════════════════════════════════════════════
+// LEVEL MANAGEMENT
+// ═══════════════════════════════════════════════════════
+function showStartOverlay(levelIdx) {
+  const lv = LEVELS[levelIdx];
+  document.getElementById('start-level-title').textContent = lv.title;
+  document.getElementById('start-level-desc').textContent  = lv.desc;
+  document.getElementById('start-level-hint').textContent  = lv.hint||'';
+  document.getElementById('start-level-goal').textContent  = lv.goalScore===Infinity
+    ? '🏆 挑戰模式：'+lv.timeLimit/60+'分鐘看看能得幾分！'
+    : '🎯 目標：'+lv.timeLimit/60+'分鐘內達到 '+lv.goalScore+' 分';
+  document.getElementById('start-btn').onclick = () => startGame(levelIdx);
+  // 先隱藏其他所有 overlay，才能顯示開始畫面
+  document.getElementById('levelClearOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+  document.getElementById('startOverlay').style.display='flex';
+}
+
+function startGame(levelIdx) {
+  currentLevelIdx = levelIdx;
+  currentLevel    = LEVELS[levelIdx];
+  MAP     = currentLevel.map;
+  ROWS    = MAP.length;
+  COLS    = MAP[0].length;
+  RECIPES = currentLevel.recipes;
+
+  ['startOverlay','endOverlay','levelClearOverlay'].forEach(id=>document.getElementById(id).style.display='none');
+
+  score=0; timeLeft=currentLevel.timeLimit; orders=[];
+  [stovePots,counterItems,chopProgress,plateItems].forEach(o=>Object.keys(o).forEach(k=>delete o[k]));
+
+  document.getElementById('score').textContent='0';
+  document.getElementById('score').style.color='var(--accent2)';
+  document.getElementById('timer-bar').style.width='100%';
+  document.getElementById('timer-bar').style.background='linear-gradient(90deg,var(--green),var(--accent2))';
+  const m=Math.floor(currentLevel.timeLimit/60), s=String(currentLevel.timeLimit%60).padStart(2,'0');
+  document.getElementById('timer-text').textContent='⏱ '+m+':'+s;
+  document.getElementById('goal-display').textContent=currentLevel.goalScore===Infinity?'🏆 挑戰模式！':'🎯 目標 '+currentLevel.goalScore+' 分';
+  document.getElementById('level-badge').textContent='第 '+currentLevel.num+' 關';
+
+  // Re-calculate scale for new map
+  resize();
+
+  // Spawn players in walkable cells (row 3, col 3) and (row 5, col 9)
+  players = [
+    makePlayer(3*TILE+TILE/2, 3*TILE+TILE/2, '#ff6b9d'),
+    makePlayer(9*TILE+TILE/2, 5*TILE+TILE/2, '#4ecdc4'),
+  ];
+
+  spawnOrder(); spawnOrder();
+  buildRecipePanel();
+
+  gameRunning=true;
+  if (tickInterval) clearInterval(tickInterval);
+  tickInterval=setInterval(tick,1000);
+  requestAnimationFrame(update);
+}
+
+function showLevelClear() {
+  gameRunning=false; clearInterval(tickInterval);
+  document.getElementById('lc-title').textContent='✅ 第 '+currentLevel.num+' 關通關！';
+  document.getElementById('lc-score').textContent='得分 '+score+' 分';
+  const hasNext=currentLevelIdx+1<LEVELS.length;
+  const nb=document.getElementById('lc-next-btn');
+  const np=document.getElementById('lc-next-preview');
+  if (hasNext) { nb.style.display='block'; np.textContent='下一關：'+LEVELS[currentLevelIdx+1].title; nb.onclick=()=>showStartOverlay(currentLevelIdx+1); }
+  else { nb.style.display='none'; np.textContent='🏆 恭喜全關卡通關！'; }
+  document.getElementById('lc-retry-btn').onclick=()=>startGame(currentLevelIdx);
+  document.getElementById('levelClearOverlay').style.display='flex';
+}
+
+function endGame() {
+  gameRunning=false; clearInterval(tickInterval);
+  const ic=currentLevel.goalScore===Infinity;
+  if (ic) {
+    const rank=score>=3000?'👑 傳說廚神！':score>=2000?'🥇 超級廚師！':score>=1200?'🥈 資深大廚！':score>=600?'🥉 廚房新星！':'🍳 繼續練習！';
+    document.getElementById('starRow').textContent=score>=2000?'⭐⭐⭐':score>=1200?'⭐⭐':'⭐';
+    document.getElementById('finalScore').textContent=score+' 分';
+    document.getElementById('endMsg').textContent=rank;
+  } else {
+    const passed=score>=currentLevel.goalScore;
+    document.getElementById('starRow').textContent=passed?'⭐⭐⭐':score>=currentLevel.goalScore*0.6?'⭐⭐':'⭐';
+    document.getElementById('finalScore').textContent=score+' 分';
+    document.getElementById('endMsg').textContent=passed?'達標！目標 '+currentLevel.goalScore+' 分 ✅':'未達標，目標 '+currentLevel.goalScore+' 分，再試試！';
+  }
+  document.getElementById('retry-btn').onclick=()=>showStartOverlay(currentLevelIdx);
+  document.getElementById('endOverlay').style.display='flex';
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+drawGame();
+showStartOverlay(0);
 </script>
 </body>
 </html>
